@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14506935.svg)](https://doi.org/10.5281/zenodo.14506935)
+
 # Replication Package for "Enabling Architecture Traceability by LLM-based Architecture Component Name Extraction"
 
 by Dominik Fuchß, Haoyu Liu, Tobias Hey, Jan Keim, and Anne Koziolek
