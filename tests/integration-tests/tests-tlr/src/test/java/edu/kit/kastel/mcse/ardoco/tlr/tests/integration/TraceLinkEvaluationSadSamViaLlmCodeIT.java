@@ -1,4 +1,4 @@
-/* Licensed under MIT 2023-2024. */
+/* Licensed under MIT 2023-2025. */
 package edu.kit.kastel.mcse.ardoco.tlr.tests.integration;
 
 import java.util.ArrayList;
@@ -72,11 +72,16 @@ class TraceLinkEvaluationSadSamViaLlmCodeIT {
         System.out.println(Arrays.stream(CodeProject.values())
                 .map(Enum::name)
                 .collect(Collectors.joining(" & ")) + " & Macro Avg & Weighted Average" + " \\\\");
+
+        String resultText = "";
+        String resultF1Text = "";
+
         for (LargeLanguageModel llm : LargeLanguageModel.values()) {
             if (llm.isGeneric() && RESULTS.keySet().stream().noneMatch(k -> k.getTwo() == llm)) {
                 continue;
             }
             StringBuilder llmResult = new StringBuilder(llm.getHumanReadableName() + " ");
+            StringBuilder llmResultF1 = new StringBuilder(llm.getHumanReadableName() + " ");
 
             List<SingleClassificationResult<String>> classificationResults = new ArrayList<>();
             for (CodeProject project : CodeProject.values()) {
@@ -95,6 +100,8 @@ class TraceLinkEvaluationSadSamViaLlmCodeIT {
                 classificationResults.add(evaluationResults.classificationResult());
                 llmResult.append(String.format(Locale.ENGLISH, "&%.2f&%.2f&%.2f", evaluationResults.precision(), evaluationResults.recall(), evaluationResults
                         .f1()));
+
+                llmResultF1.append(String.format(Locale.ENGLISH, "&%.2f", evaluationResults.f1()));
             }
             ClassificationMetricsCalculator classificationMetricsCalculator = ClassificationMetricsCalculator.getInstance();
             var averages = classificationMetricsCalculator.calculateAverages(classificationResults, null);
@@ -104,8 +111,16 @@ class TraceLinkEvaluationSadSamViaLlmCodeIT {
 
             llmResult.append(String.format(Locale.ENGLISH, "&%.2f&%.2f&%.2f&%.2f&%.2f&%.2f\\\\", macro.getPrecision(), macro.getRecall(), macro.getF1(),
                     weighted.getPrecision(), weighted.getRecall(), weighted.getF1())); // end of line
-            System.out.println(llmResult.toString().replace("0.", ".").replace("1.00", "1.0"));
+            llmResultF1.append(String.format(Locale.ENGLISH, "&%.2f&%.2f\\\\", macro.getF1(), weighted.getF1())); // end of line
+
+            resultText += llmResult.toString().replace("0.", ".").replace("1.00", "1.0") + "\n";
+            resultF1Text += llmResultF1.toString().replace("0.", ".").replace("1.00", "1.0") + "\n";
         }
+
+        System.out.println("--- Complete ---");
+        System.out.println(resultText);
+        System.out.println("--- Only F1 ---");
+        System.out.println(resultF1Text);
     }
 
     private static Stream<Arguments> llmsXprojects() {
